@@ -601,14 +601,6 @@ video {
   margin-right: auto;
 }
 
-.mb-4 {
-  margin-bottom: 1rem;
-}
-
-.mb-6 {
-  margin-bottom: 1.5rem;
-}
-
 .flex {
   display: flex;
 }
@@ -625,20 +617,8 @@ video {
   resize: both;
 }
 
-.items-center {
-  align-items: center;
-}
-
-.justify-center {
-  justify-content: center;
-}
-
 .p-4 {
   padding: 1rem;
-}
-
-.text-center {
-  text-align: center;
 }
 
 .text-3xl {
