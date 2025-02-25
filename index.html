@@ -16,37 +16,77 @@
 
         gtag('config', 'G-7SGTEC99PW');
         </script>
+        <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.71/build/spline-viewer.js"></script>
         <style>
-            canvas {
+            /* Full-screen background spline viewer */
+            .spline-container {
                 position: fixed;
                 top: 0;
                 left: 0;
                 width: 100%;
                 height: 100%;
                 z-index: 1;
-                pointer-events: none;
             }
+            
+            spline-viewer {
+                width: 100%;
+                height: 100%;
+            }
+            
+            /* Content styling */
             .content {
                 position: relative;
                 z-index: 2;
+                pointer-events: auto;
             }
+            
             .grid-container {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
                 gap: 20px;
                 align-items: center;
             }
+            
+            /* Loading animation */
+            #loading-container {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: rgba(0, 0, 0, 0.8);
+                z-index: 10;
+                transition: opacity 0.5s ease;
+            }
+            
+            @keyframes rotation {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            
+            /* Hide the loading container when Spline is loaded */
+            spline-viewer[loaded] + #loading-container {
+                display: none;
+            }
         </style>
     </head>
     <body style="background-color: #000000; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-        <canvas id="backgroundCanvas"></canvas>
+        <!-- Spline background -->
+        <div class="spline-container">
+            <spline-viewer 
+                loading-anim-type="spinner-small-dark" 
+                url="scene.splinecode"
+                events-target="global"
+                onLoad="document.getElementById('loading-container').style.display = 'none';">
+            </spline-viewer>
+        </div>
+        
+        <!-- Main content -->
         <div class="container mx-auto p-4 md:p-8 content">
             <div class="grid-container">
-                <img src="images/sherizan.png"
-                     alt="Sherizan"
-                     style="width: 500px; filter: brightness(0.9) contrast(1.1);"
-                     class="js-tilt"
-                     data-tilt>
                 <div>
                     <h1 class="text-3xl md:text-5xl" style="font-family: 'DM Sans', sans-serif; color: #FFFFFF; letter-spacing: -2px;">
                         Sherizan Sheikh
@@ -60,120 +100,8 @@
                 </div>
             </div>
         </div>
-        <script>
-            const canvas = document.getElementById('backgroundCanvas');
-            const ctx = canvas.getContext('2d');
 
-            // Set canvas size
-            function resizeCanvas() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            }
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
-
-            // Particle class with improved following behavior
-            class Particle {
-                constructor(x, y, targetX, targetY) {
-                    this.x = x;
-                    this.y = y;
-                    this.targetX = targetX;
-                    this.targetY = targetY;
-                    this.size = Math.random() * 3 + 1;
-                    this.life = 100;
-                    this.maxSpeed = 3;
-                    this.acceleration = 0.2;
-                }
-
-                update() {
-                    // Calculate direction to target
-                    let dx = this.targetX - this.x;
-                    let dy = this.targetY - this.y;
-                    
-                    // Calculate distance
-                    let distance = Math.sqrt(dx * dx + dy * dy);
-                    
-                    // Normalize direction
-                    if (distance > 0) {
-                        dx = dx / distance;
-                        dy = dy / distance;
-                    }
-                    
-                    // Apply acceleration towards target
-                    this.x += dx * this.maxSpeed;
-                    this.y += dy * this.maxSpeed;
-                    
-                    // Reduce life
-                    this.life -= 1.5;
-                    
-                    // Update target position with slight randomness
-                    this.targetX += (Math.random() - 0.5) * 2;
-                    this.targetY += (Math.random() - 0.5) * 2;
-                }
-
-                draw() {
-                    ctx.fillStyle = `rgba(255, 255, 255, ${this.life/100})`;
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-
-            let particles = [];
-            let mouse = {
-                x: null,
-                y: null,
-                lastX: null,
-                lastY: null
-            };
-
-            // Track mouse movement
-            window.addEventListener('mousemove', (event) => {
-                mouse.lastX = mouse.x;
-                mouse.lastY = mouse.y;
-                mouse.x = event.x;
-                mouse.y = event.y;
-                
-                // Create particles along the mouse path
-                if (mouse.lastX !== null) {
-                    const steps = 3;
-                    for (let i = 0; i < steps; i++) {
-                        const x = mouse.lastX + (mouse.x - mouse.lastX) * (i / steps);
-                        const y = mouse.lastY + (mouse.y - mouse.lastY) * (i / steps);
-                        particles.push(new Particle(
-                            x + (Math.random() - 0.5) * 20,
-                            y + (Math.random() - 0.5) * 20,
-                            mouse.x,
-                            mouse.y
-                        ));
-                    }
-                }
-            });
-
-            // Animation loop
-            function animate() {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                for(let i = 0; i < particles.length; i++) {
-                    particles[i].update();
-                    particles[i].draw();
-                    if(particles[i].life <= 0) {
-                        particles.splice(i, 1);
-                        i--;
-                    }
-                }
-                
-                // Limit number of particles
-                while (particles.length > 300) {
-                    particles.shift();
-                }
-                
-                requestAnimationFrame(animate);
-            }
-
-            animate();
-        </script>
+        <!-- jQuery and animation scripts -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/tilt.js/1.2.1/tilt.jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
@@ -190,6 +118,14 @@
                     opacity: 0,
                     y: -50,
                     ease: "bounce.out"
+                });
+                
+                // Hide loading container when Spline is loaded
+                document.querySelector('spline-viewer').addEventListener('load', function() {
+                    document.getElementById('loading-container').style.opacity = '0';
+                    setTimeout(() => {
+                        document.getElementById('loading-container').style.display = 'none';
+                    }, 500);
                 });
             });
         </script>
